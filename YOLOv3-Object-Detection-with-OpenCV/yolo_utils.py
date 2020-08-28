@@ -9,21 +9,32 @@ def show_image(img):
     cv.imshow("Image", img)
     cv.waitKey(0)
 
-def draw_labels_and_boxes(img, boxes, confidences, classids, idxs, colors, labels):
+
+def draw_labels_and_boxes(img, boxes, confidences, classids, idxs, colors, labels, ignore_regions):
     # If there are any detections
+
+    # if we need to send back the regions
+    if ignore_regions is not None:
+        ignore_regions.append([])
     if len(idxs) > 0:
         for i in idxs.flatten():
-            # Get the bounding box coordinates
-            x, y = boxes[i][0], boxes[i][1]
-            w, h = boxes[i][2], boxes[i][3]
-            
-            # Get the unique color for this class
-            color = [int(c) for c in colors[classids[i]]]
 
-            # Draw the bounding box rectangle and label on the image
-            cv.rectangle(img, (x, y), (x+w, y+h), color, 2)
-            text = "{}: {:4f}".format(labels[classids[i]], confidences[i])
-            cv.putText(img, text, (x, y-5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            if classids[i] in [0,1,2,3,5,6,7]:
+
+                # Get the bounding box coordinates
+                x, y = boxes[i][0], boxes[i][1]
+                w, h = boxes[i][2], boxes[i][3]
+
+                # update ignore regions with the new bounding boxes
+                if ignore_regions is not None:
+                    ignore_regions[-1].append(((x,y),(x+w,y+h)))
+                # Get the unique color for this class
+                color = [int(c) for c in colors[classids[i]]]
+
+                # Draw the bounding box rectangle and label on the image
+                cv.rectangle(img, (x, y), (x+w, y+h), color, 2)
+                text = "{}: {:4f}".format(labels[classids[i]], confidences[i])
+                cv.putText(img, text, (x, y-5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
     return img
 
@@ -61,7 +72,7 @@ def generate_boxes_confidences_classids(outs, height, width, tconf):
 
     return boxes, confidences, classids
 
-def infer_image(net, layer_names, height, width, img, colors, labels, FLAGS, 
+def infer_image(net, layer_names, height, width, img, colors, labels, FLAGS, ignore_regions=None,
             boxes=None, confidences=None, classids=None, idxs=None, infer=True):
     
     if infer:
@@ -91,6 +102,6 @@ def infer_image(net, layer_names, height, width, img, colors, labels, FLAGS,
         raise '[ERROR] Required variables are set to None before drawing boxes on images.'
         
     # Draw labels and boxes on the image
-    img = draw_labels_and_boxes(img, boxes, confidences, classids, idxs, colors, labels)
+    img = draw_labels_and_boxes(img, boxes, confidences, classids, idxs, colors, labels, ignore_regions)
 
     return img, boxes, confidences, classids, idxs

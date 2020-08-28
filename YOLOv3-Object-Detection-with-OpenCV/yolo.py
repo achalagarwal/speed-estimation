@@ -5,6 +5,7 @@ import subprocess
 import time
 import os
 from yolo_utils import infer_image, show_image
+import pickle
 
 FLAGS = []
 
@@ -34,7 +35,8 @@ if __name__ == '__main__':
 
 	parser.add_argument('-v', '--video-path',
 		type=str,
-		help='The path to the video file')
+		help='The path to the video file',
+		default='../speed_challenge_2017/data/train.mp4')
 
 
 	parser.add_argument('-vo', '--video-output-path',
@@ -96,6 +98,10 @@ if __name__ == '__main__':
 	    print ('Neither path to an image or path to video provided')
 	    print ('Starting Inference on Webcam')
 
+
+	# save regions to ignore for a video
+	ignore_regions = []
+
 	# Do inference with given image
 	if FLAGS.image_path:
 		# Read the image
@@ -123,6 +129,8 @@ if __name__ == '__main__':
 		finally:
 			i = 0
 			while True:
+				
+				
 				grabbed, frame = vid.read()
 
 			    # Checking if the complete video is read
@@ -132,19 +140,21 @@ if __name__ == '__main__':
 				if width is None or height is None:
 					height, width = frame.shape[:2]
 
-				frame, _, _, _, _ = infer_image(net, layer_names, height, width, frame, colors, labels, FLAGS)
+				frame, _, _, _, _ = infer_image(net, layer_names, height, width, frame, colors, labels, FLAGS, ignore_regions)
+				frame = frame[0:380]
 				i += 1
 				print(i)
 				if writer is None:
 					# Initialize the video writer
 					fourcc = cv.VideoWriter_fourcc(*"MJPG")
 					writer = cv.VideoWriter(FLAGS.video_output_path, fourcc, 30, 
-						            (frame.shape[1], frame.shape[0]), True)
+						            (int(frame.shape[1]), int(frame.shape[0])), True)
 
 
 				writer.write(frame)
 
 			print ("[INFO] Cleaning up...")
+			pickle.dump(ignore_regions, open("regions.pkl", "wb"))
 			writer.release()
 			vid.release()
 

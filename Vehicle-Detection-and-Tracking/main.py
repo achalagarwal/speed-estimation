@@ -3,6 +3,10 @@
 """@author: kyleguan
 """
 
+import time
+from helpers import *
+from detector import *
+from tracker import *
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
@@ -10,9 +14,8 @@ from moviepy.editor import VideoFileClip
 from collections import deque
 from sklearn.utils.linear_assignment_ import linear_assignment
 
-import helpers
 import detector
-import tracker
+import helpers
 
 # Global variables to be used by funcitons of VideoFileClop
 frame_count = 0 # frame counter
@@ -200,6 +203,7 @@ if __name__ == "__main__":
              image_box = pipeline(image)   
              plt.imshow(image_box)
              plt.show()
+             time.sleep(5)
            
     else: # test on a video file.
         

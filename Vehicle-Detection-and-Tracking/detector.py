@@ -118,7 +118,7 @@ class CarDetector(object):
               cls = classes.tolist()
               
               # The ID for car in COCO data set is 3 
-              idx_vec = [i for i, v in enumerate(cls) if ((v==3) and (scores[i]>0.3))]
+              idx_vec = [i for i, v in enumerate(cls) if ((v==3 or v==8 or v==1 or v==2 or v==6) and (scores[i]>0.3))]
               
               if len(idx_vec) ==0:
                   print('no detection!')

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """@author: kyleguan
 """
-
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
@@ -200,6 +200,7 @@ if __name__ == "__main__":
              image_box = pipeline(image)   
              plt.imshow(image_box)
              plt.show()
+             time.sleep(2)
            
     else: # test on a video file.
         
